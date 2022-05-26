@@ -14,7 +14,7 @@ namespace HoYoLab_API
             _hoyolabAccount = hoyolabAccount;
         }
 
-        public RewardInfo? CurrentRewardInfo => GetCurrentRewardInfo();
+        public RewardInformation? CurrentRewardInformation => GetCurrentRewardInfo();
 
         public MonthlyRewards? CurrentMonthlyRewards
         {
@@ -53,16 +53,16 @@ namespace HoYoLab_API
             return null;
         }
 
-        private RewardInfo? GetCurrentRewardInfo()
+        private RewardInformation? GetCurrentRewardInfo()
         {
-            if (new Requests.RewardInfoRequest(_hoyolabAccount).TrySend(out string response) == false)
+            if (new Requests.RewardInformationRequest(_hoyolabAccount).TrySend(out string response) == false)
             {
                 return null;
             }
 
             try
             {
-                var deserializedMonthlyRewards = JsonSerializer.Deserialize<RewardInfoResponse>(response);
+                var deserializedMonthlyRewards = JsonSerializer.Deserialize<RewardInformationResponse>(response);
 
                 if (deserializedMonthlyRewards?.ReturnedData != null)
                 {
@@ -77,7 +77,7 @@ namespace HoYoLab_API
             return null;
         }
 
-        public readonly struct RewardInfo
+        public readonly struct RewardInformation
         {
             [JsonPropertyName("is_sign")]
             public bool IsClaimed { get; init; }

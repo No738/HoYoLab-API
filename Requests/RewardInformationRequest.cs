@@ -1,10 +1,10 @@
 ﻿namespace HoYoLab_API.Requests
 {
-    internal sealed class RewardInfoRequest : DefaultRequest
+    internal sealed class RewardInformationRequest : DefaultRequest
     {
         private static readonly string AccountInfoUrl = "https://hk4e-api-os.mihoyo.com/event/sol/info";
 
-        public RewardInfoRequest(HoyolabAccount account) : base(account.AuthenticationData,
+        public RewardInformationRequest(HoyolabAccount account) : base(account.AuthenticationData,
             account.UserAgent)
         {
             RequestMessage = new HttpRequestMessage(HttpMethod.Get,
