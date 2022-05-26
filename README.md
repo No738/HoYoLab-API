@@ -54,3 +54,5 @@ Console.WriteLine(account.DailyCheckIn.CurrentMonthlyRewards);
 Console.WriteLine(account.DailyCheckIn.CurrentRewardInformation);
 Console.WriteLine(account.DailyCheckIn.ClaimReward());
 ```
+Preview: 
+<img src="https://github.com/No738/HoYoLab-API/blob/master/preview.png"/>
