@@ -17,7 +17,7 @@ using HoYoLab_API;
 public void SomeMethod()
 {
     var account = new HoyolabAccount(
-                rawCookies: "ltoken=12AOxlS0gnNGqQ2kOgJR2C2g28S1uU6dgBT0qgKa; ltuid=52606212", language: "en-en", userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:100.0) Gecko/20100101 Firefox/100.0");
+                rawCookies: "ltoken=12AOxlS0gnNGqQ2kOgJR2C2g28S1uU6dgBT0qgKa; ltuid=52606212", language: "en-us", userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:100.0) Gecko/20100101 Firefox/100.0");
 }
 
 ```
