@@ -2,7 +2,7 @@
 
 namespace HoYoLab_API.Responses
 {
-    internal abstract class DefaultResponse
+    internal class DefaultResponse
     {
         [JsonPropertyName("retcode")]
         public int ResultCode { get; init; }

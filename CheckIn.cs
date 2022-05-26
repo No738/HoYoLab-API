@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using HoYoLab_API.Requests;
 using HoYoLab_API.Responses;
 
 namespace HoYoLab_API
@@ -12,6 +13,15 @@ namespace HoYoLab_API
         internal CheckIn(HoyolabAccount hoyolabAccount)
         {
             _hoyolabAccount = hoyolabAccount;
+        }
+
+        public enum ClaimResult
+        {
+            Success,
+            AuthenticationError,
+            DeserializeError,
+            AlreadyClaimed,
+            UnknownResultCode
         }
 
         public RewardInformation? CurrentRewardInformation => GetCurrentRewardInfo();
@@ -29,9 +39,36 @@ namespace HoYoLab_API
             }
         }
 
+        public ClaimResult ClaimReward()
+        {
+            new ClaimRewardRequest(_hoyolabAccount).TrySend(out string response);
+
+            try
+            {
+                var deserializedCurrentReward = JsonSerializer.Deserialize<DefaultResponse>(response);
+
+                if (deserializedCurrentReward == null)
+                {
+                    return ClaimResult.DeserializeError;
+                }
+
+                return deserializedCurrentReward.ResultCode switch
+                {
+                    0 => ClaimResult.Success,
+                    -5003 => ClaimResult.AlreadyClaimed,
+                    -100 => ClaimResult.AuthenticationError,
+                    _ => ClaimResult.UnknownResultCode
+                };
+            }
+            catch
+            {
+                return ClaimResult.DeserializeError;
+            }
+        }
+
         private MonthlyRewards? GetMonthlyRewards()
         {
-            if (new Requests.MonthlyRewardsRequest(_hoyolabAccount).TrySend(out string response) == false)
+            if (new MonthlyRewardsRequest(_hoyolabAccount).TrySend(out string response) == false)
             {
                 return null;
             }
@@ -55,18 +92,18 @@ namespace HoYoLab_API
 
         private RewardInformation? GetCurrentRewardInfo()
         {
-            if (new Requests.RewardInformationRequest(_hoyolabAccount).TrySend(out string response) == false)
+            if (new RewardInformationRequest(_hoyolabAccount).TrySend(out string response) == false)
             {
                 return null;
             }
 
             try
             {
-                var deserializedMonthlyRewards = JsonSerializer.Deserialize<RewardInformationResponse>(response);
+                var deserializedCurrentReward = JsonSerializer.Deserialize<RewardInformationResponse>(response);
 
-                if (deserializedMonthlyRewards?.ReturnedData != null)
+                if (deserializedCurrentReward?.ReturnedData != null)
                 {
-                    return deserializedMonthlyRewards.ReturnedData;
+                    return deserializedCurrentReward.ReturnedData;
                 }
             }
             catch
@@ -82,6 +119,9 @@ namespace HoYoLab_API
             [JsonPropertyName("is_sign")]
             public bool IsClaimed { get; init; }
 
+            /// <summary>
+            /// Total signed days count (Increment, when reward has claimed. If next reward day number is 23, value will be 22)
+            /// </summary>
             [JsonPropertyName("total_sign_day")]
             public int SignedDays { get; init; }
 
@@ -108,9 +148,15 @@ namespace HoYoLab_API
 
             public readonly struct Reward
             {
+                /// <summary>
+                /// Name of reward item
+                /// </summary>
                 [JsonPropertyName("name")]
                 public string Name { get; init; }
 
+                /// <summary>
+                /// Count of reward items
+                /// </summary>
                 [JsonPropertyName("cnt")]
                 public int Count { get; init; }
 

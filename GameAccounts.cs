@@ -66,11 +66,11 @@ namespace HoYoLab_API
             public string Region { get; init; }
 
             [JsonPropertyName("level")]
-            public int Level { get; init; }
+            public int Rank { get; init; }
 
             public override string ToString()
             {
-                return $"{Nickname} [{Level} level] - {Region}";
+                return $"{Nickname} [{Rank} rank] - {Region}";
             }
         }
     }
