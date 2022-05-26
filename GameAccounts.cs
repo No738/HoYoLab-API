@@ -23,32 +23,30 @@ namespace HoYoLab_API
         {
             get
             {
-                if (_lastCacheUpdate.AddMinutes(CacheMinutes) > DateTime.Now 
-                    && _cachedAccounts != null)
+                if (_cachedAccounts == null ||  _lastCacheUpdate.AddMinutes(CacheMinutes) < DateTime.Now)
                 {
-                    return _cachedAccounts;
+                    _cachedAccounts = GetGameAccounts();
+                    _lastCacheUpdate = DateTime.Now;
                 }
 
-                _cachedAccounts = GetGameAccounts();
-                _lastCacheUpdate = DateTime.Now;
                 return _cachedAccounts;
             }
         }
 
         private IReadOnlyList<GameAccount>? GetGameAccounts()
         {
-            if (new GameAccountsRequest(_hoyolabAccount).TrySend(out string result) == false)
+            if (new GameAccountsRequest(_hoyolabAccount).TrySend(out string response) == false)
             {
                 return null;
             }
 
             try
             {
-                var response = JsonSerializer.Deserialize<GameAccountsResponse>(result);
+                var deserializedGameAccounts = JsonSerializer.Deserialize<GameAccountsResponse>(response);
 
-                if (response?.ReturnedData != null)
+                if (deserializedGameAccounts?.ReturnedData != null)
                 {
-                    return response.ReturnedData.Accounts;
+                    return deserializedGameAccounts.ReturnedData.Accounts;
                 }
             }
             catch

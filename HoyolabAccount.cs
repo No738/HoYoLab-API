@@ -33,6 +33,7 @@
             UserAgent = userAgent;
             Language = language;
 
+            DailyCheckIn = new CheckIn(this);
             _gameAccounts = new GameAccounts(this);
         }
 
@@ -47,10 +48,9 @@
         public IReadOnlyList<GameAccounts.GameAccount>? GameAccounts => _gameAccounts.Accounts;
 
         /// <summary>
-        /// Authentication data for HoYoLab authorization 
+        /// Daily check-in API for in-game rewards
         /// </summary>
-        internal AuthenticationData AuthenticationData { get; }
-
+        public CheckIn DailyCheckIn { get; } 
         /// <summary>
         /// A UserAgent, that will be used to send requests. Can be empty.
         /// </summary>
@@ -60,5 +60,10 @@
         /// Affects the received letters in game and language of http(s) responses from Hoyolab.
         /// </summary>
         public string Language { get; }
+
+        /// <summary>
+        /// Authentication data for HoYoLab authorization 
+        /// </summary>
+        internal AuthenticationData AuthenticationData { get; }
     }
 }
