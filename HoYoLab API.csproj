@@ -8,11 +8,14 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>No.738</Company>
     <Description>A small API for working with HoYoLab. Primarily developed for daily rewards in Genshin Impact.</Description>
-    <PackageIcon>cb0d79765ac1b39571d2e8d09e24825c_7671070233748405953.png</PackageIcon>
+    <PackageIcon></PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/No738/HoYoLab-API</RepositoryUrl>
     <PackageTags>HoYoLab;Genshin Impact;Hoyoverse;Mihoyo;</PackageTags>
     <PackageId>HoYoLab_API</PackageId>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
