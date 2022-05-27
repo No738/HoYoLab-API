@@ -7,6 +7,9 @@ To use the API, you will need HoYoLab cookies. To get them, go to www.hoyolab.co
 ```js
 copy(document.cookie);
 ```
+Done! Cookies copied in your clipboard.
+
+<img src="preview-cookies.jpg" alt="Copy cookie preview"/>
 
 ### Creating a new HoYoLab Account instance
 To create a new account instance, you need to have cookies string (formatted like a example below).
@@ -55,4 +58,4 @@ Console.WriteLine(account.DailyCheckIn.CurrentRewardInformation);
 Console.WriteLine(account.DailyCheckIn.ClaimReward());
 ```
 Preview: 
-<img src="https://github.com/No738/HoYoLab-API/blob/master/preview.png"/>
+<img src="https://github.com/No738/HoYoLab-API/blob/master/preview-examples.png" alt="Using examples preview"/>
