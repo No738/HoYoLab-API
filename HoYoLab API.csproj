@@ -16,13 +16,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\Downloads\cb0d79765ac1b39571d2e8d09e24825c_7671070233748405953.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
