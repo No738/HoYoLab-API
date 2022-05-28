@@ -114,7 +114,7 @@ namespace HoYoLab_API
             return null;
         }
 
-        public readonly struct RewardInformation
+        public class RewardInformation
         {
             [JsonPropertyName("is_sign")]
             public bool IsClaimed { get; init; }
