@@ -15,7 +15,7 @@
     <PackageId>HoYoLab_API</PackageId>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <Version>1.0.1</Version>
+    <Version>1.0.1-hotfix</Version>
   </PropertyGroup>
 
   <ItemGroup>
