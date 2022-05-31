@@ -20,7 +20,7 @@ namespace HoYoLab_API
 
         public int MapCacheTime => 30;
 
-        public IReadOnlyList<MapObject>? MapObjects
+        public IReadOnlyList<MapObject>? TeyvatPoints
         {
             get
             {
@@ -31,10 +31,9 @@ namespace HoYoLab_API
 
                 return _mapObjects;
             }
-            private set => _mapObjects = value;
         }
 
-        public IReadOnlyList<MapObjectLabel>? ObjectLabels
+        public IReadOnlyList<MapObjectLabel>? TeyvatPointLabels
         {
             get
             {
@@ -45,12 +44,13 @@ namespace HoYoLab_API
 
                 return _objectLabels;
             }
-            private set => _objectLabels = value;
         }
+
+        public string MarkedObjectsResponse = string.Empty;
 
         public bool TryMark(int objectId, out string response)
         {
-            MapObject? foundObject = MapObjects?.FirstOrDefault(x => x.Id == objectId);
+            MapObject? foundObject = TeyvatPoints?.FirstOrDefault(x => x.Id == objectId);
 
             if (foundObject == null)
             {
@@ -63,7 +63,6 @@ namespace HoYoLab_API
                 return false;
             }
             
-            foundObject.DisplayState = 1;
             return true;
         }
 
@@ -85,16 +84,35 @@ namespace HoYoLab_API
 
                 if (deserializedMapObjects?.ReturnedData != null)
                 {
-                    _lastUpdateTime = DateTime.Now;
+                    _mapObjects = deserializedMapObjects.ReturnedData.Objects;
+                    _objectLabels = deserializedMapObjects.ReturnedData.ObjectLabels;
+                }
+            }
+            catch
+            {
+                return;
+            }
 
-                    MapObjects = deserializedMapObjects.ReturnedData.Objects;
-                    ObjectLabels = deserializedMapObjects.ReturnedData.ObjectLabels;
+            if (new MarkedMapObjectsRequest(_hoyolabAccount).TrySend(out string markedObjectsResponse) == false)
+            {
+                return;
+            }
+
+            try
+            {
+                var deserializedMapObjects = JsonSerializer.Deserialize<DefaultResponse>(markedObjectsResponse);
+
+                if (deserializedMapObjects?.ReturnedData != null)
+                {
+                    MarkedObjectsResponse = markedObjectsResponse;
                 }
             }
             catch
             {
                 // ignored
             }
+
+            _lastUpdateTime = DateTime.Now;
         }
 
         public class MapObject
@@ -111,13 +129,11 @@ namespace HoYoLab_API
             [JsonPropertyName("y_pos")]
             public float PositionY { get; init; }
 
-            [JsonPropertyName("display_state")]
-            public int DisplayState { get; internal set; }
+            public bool IsMarked { get; private set; }
 
             public override string ToString()
             {
-                return $"{Id} ({PositionX};{PositionY})\n" +
-                       $"Display state: {DisplayState}";
+                return $"{Id} ({PositionX};{PositionY})";
             }
         }
 
@@ -131,6 +147,18 @@ namespace HoYoLab_API
 
             [JsonPropertyName("icon")]
             public string IconLink { get; init; }
+        }
+
+        public class MarkedPointList
+        {
+            [JsonPropertyName("list")]
+            public IReadOnlyList<MarkedPoint> Points { get; init; }
+        }
+
+        public class MarkedPoint
+        {
+            [JsonPropertyName("point_id")]
+            public int Id { get; init; }
         }
     }
 }

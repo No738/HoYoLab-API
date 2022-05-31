@@ -54,7 +54,7 @@ namespace HoYoLab_API.Requests
 
             RequestMessage.Headers.Add("Accept", "*/*");
             RequestMessage.Headers.Add("Host", RequestMessage.RequestUri.Host);
-            RequestMessage.Headers.Add("Accept-Encoding", "br");
+            RequestMessage.Headers.Add("Accept-Encoding", "gzip, deflate, br");
             RequestMessage.Headers.Add("Connection", "keep-alive");
         }
 
