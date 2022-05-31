@@ -17,11 +17,11 @@ namespace HoYoLab_API
 
         public enum ClaimResult
         {
-            Success,
-            AuthenticationError,
-            DeserializeError,
-            AlreadyClaimed,
-            UnknownResultCode
+            DeserializeError = int.MinValue,
+            AlreadyClaimed = -5003,
+            AuthenticationError = -100,
+            Success = 0,
+            UnknownResultCode = int.MaxValue
         }
 
         public RewardInformation? CurrentRewardInformation => GetCurrentRewardInfo();
@@ -41,24 +41,26 @@ namespace HoYoLab_API
 
         public ClaimResult ClaimReward()
         {
-            new ClaimRewardRequest(_hoyolabAccount).TrySend(out string response);
+            if (new ClaimRewardRequest(_hoyolabAccount).TrySend(out string response) == false)
+            {
+                return ClaimResult.AuthenticationError;
+            }
 
             try
             {
-                var deserializedCurrentReward = JsonSerializer.Deserialize<DefaultResponse>(response);
+                var deserializedClaimResponse = JsonSerializer.Deserialize<DefaultResponse>(response);
 
-                if (deserializedCurrentReward == null)
+                if (deserializedClaimResponse == null)
                 {
                     return ClaimResult.DeserializeError;
                 }
 
-                return deserializedCurrentReward.ResultCode switch
+                if (Enum.IsDefined(typeof(ClaimResult), deserializedClaimResponse.ResultCode) == false)
                 {
-                    0 => ClaimResult.Success,
-                    -5003 => ClaimResult.AlreadyClaimed,
-                    -100 => ClaimResult.AuthenticationError,
-                    _ => ClaimResult.UnknownResultCode
-                };
+                    return ClaimResult.UnknownResultCode;
+                }
+
+                return (ClaimResult) deserializedClaimResponse.ResultCode;
             }
             catch
             {
@@ -146,7 +148,7 @@ namespace HoYoLab_API
                        $"Rewards: {string.Join(", ", Rewards)}";
             }
 
-            public readonly struct Reward
+            public class Reward
             {
                 /// <summary>
                 /// Name of reward item
