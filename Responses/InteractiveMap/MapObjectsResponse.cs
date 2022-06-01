@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace HoYoLab_API.Responses
 {
-    internal sealed class InteractiveMapObjectsResponse : DefaultResponse
+    internal sealed class MapObjectsResponse : DefaultResponse
     {
         [JsonPropertyName("data")]
         public new MapObjects ReturnedData { get; init; }

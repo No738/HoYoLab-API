@@ -28,7 +28,7 @@ namespace HoYoLab_API
         {
             get
             {
-                if (new InteractiveMapObjectsRequest(_hoyolabAccount, MapLocation)
+                if (new MapObjectsRequest(_hoyolabAccount, MapLocation)
                         .TrySend(out string response) == false)
                 {
                     return null;
@@ -37,7 +37,7 @@ namespace HoYoLab_API
                 try
                 {
                     var deserializedMapObjectsResponse =
-                        JsonSerializer.Deserialize<InteractiveMapObjectsResponse>(response);
+                        JsonSerializer.Deserialize<MapObjectsResponse>(response);
 
                     if (deserializedMapObjectsResponse == null)
                     {
@@ -46,10 +46,10 @@ namespace HoYoLab_API
 
                     _mapPoints = new List<MapPoint>(deserializedMapObjectsResponse.ReturnedData.Objects.Count);
 
-                    foreach (InteractiveMapObjectsResponse.MapObject mapObject
+                    foreach (MapObjectsResponse.MapObject mapObject
                              in deserializedMapObjectsResponse.ReturnedData?.Objects!)
                     {
-                        foreach (InteractiveMapObjectsResponse.ObjectLabel label
+                        foreach (MapObjectsResponse.ObjectLabel label
                                  in deserializedMapObjectsResponse.ReturnedData.ObjectLabels)
                         {
                             if (label.Id != mapObject.LabelId)
@@ -75,6 +75,42 @@ namespace HoYoLab_API
                 
                 return null;
             }
+        }
+
+        public bool TryMarkPoint(MapPoint point, out string response)
+        {
+            response = string.Empty;
+
+            if (point.IsMarked)
+            {
+                return true;
+            }
+
+            if (new MarkMapObjectRequest(_hoyolabAccount, MapLocation, point.Id)
+                    .TrySend(out response) == false)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool TryUnmark(MapPoint point, out string response)
+        {
+            response = string.Empty;
+
+            if (point.IsMarked)
+            {
+                return true;
+            }
+
+            if (new MarkMapObjectRequest(_hoyolabAccount, MapLocation, point.Id)
+                    .TrySend(out response) == false)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private void UpdateMarkedPoints()

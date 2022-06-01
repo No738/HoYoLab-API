@@ -2,11 +2,11 @@
 
 namespace HoYoLab_API.Requests
 {
-    internal sealed class MarkInteractiveMapObjectRequest : DefaultRequest
+    internal sealed class MarkMapObjectRequest : DefaultRequest
     {
         private static readonly string MapObjectsUrl = "https://sg-public-api-static.hoyolab.com/common/map_user/ys_obc/v1/map/point/add_mark_map_point";
        
-        public MarkInteractiveMapObjectRequest(HoyolabAccount account, InteractiveMap.Location mapLocation, int pointId) : base(account)
+        public MarkMapObjectRequest(HoyolabAccount account, InteractiveMap.Location mapLocation, int pointId) : base(account)
         {
             RequestMessage = new HttpRequestMessage(HttpMethod.Post,
                 $"{MapObjectsUrl}");

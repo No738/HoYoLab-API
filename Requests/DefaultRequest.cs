@@ -25,11 +25,7 @@ namespace HoYoLab_API.Requests
             try
             {
                 AddRequestMessageHeaders();
-
-                using var client = new HttpClient(new HttpClientHandler
-                {
-                    CookieContainer = BuildCookieContainer()
-                });
+                using var client = new HttpClient();
 
                 HttpResponseMessage responseMessage = client.SendAsync(RequestMessage).Result;
                 response = responseMessage.Content.ReadAsStringAsync().Result;
@@ -55,8 +51,8 @@ namespace HoYoLab_API.Requests
             {
                 RequestMessage.Headers.Add("User-Agent", _userAgent);
             }
-            
-            RequestMessage.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/jxl,image/webp,*/*;q=0.8");
+
+            RequestMessage.Headers.Add("Accept", "*/*");
             RequestMessage.Headers.Add("Accept-Language", _language);
             RequestMessage.Headers.Add("DNT", "1");
             RequestMessage.Headers.Add("Connection", "keep-alive");
@@ -67,19 +63,8 @@ namespace HoYoLab_API.Requests
             RequestMessage.Headers.Add("Sec-Fetch-User", "?1");
             RequestMessage.Headers.Add("Sec-GPC", "1");
             RequestMessage.Headers.Add("Pragma", "no-cache");
+            RequestMessage.Headers.Add("Cookie", _authenticationData.RawCookies);
             RequestMessage.Headers.Add("Cache-Control", "no-cache");
-        }
-
-        private CookieContainer BuildCookieContainer()
-        {
-            var cookieContainer = new CookieContainer();
-
-            foreach (Cookie cookie in _authenticationData.AuthenticationCookies)
-            {
-                cookieContainer.Add(cookie);
-            }
-            
-            return cookieContainer;
         }
     }
 }

@@ -6,19 +6,14 @@ namespace HoYoLab_API
     {
         private readonly string[] _requiredCookiesNames = { "ltoken", "ltuid" };
 
-        private readonly string _rawCookies;
-
-        private Cookie[] _cookies;
-
         private AuthenticationData(string rawCookies)
         {
-            _rawCookies = rawCookies;
-            _cookies = new Cookie[_requiredCookiesNames.Length];
+            RawCookies = rawCookies;
         }
 
-        public IEnumerable<Cookie> AuthenticationCookies => _cookies;
+        public string RawCookies { get; }
 
-        public static AuthenticationData? CreateInstance(string rawCookies)
+        internal static AuthenticationData? CreateInstance(string rawCookies)
         {
             var newData = new AuthenticationData(rawCookies);
 
@@ -32,7 +27,7 @@ namespace HoYoLab_API
 
         private bool TryParseRawCookies()
         {
-            string[] rawCookiesArray = _rawCookies.Split("; ");
+            string[] rawCookiesArray = RawCookies.Split("; ");
 
             if (rawCookiesArray.Length < _requiredCookiesNames.Length)
             {
@@ -40,43 +35,27 @@ namespace HoYoLab_API
             }
 
             if (TryConvertRawCookies(rawCookiesArray,
-                    out (string cookieName, string cookieValue)[] cookieTuples) == false)
+                    out string[] cookiesNames) == false)
             {
                 return false;
             }
 
-            _cookies = new Cookie[_requiredCookiesNames.Length];
-            var cookieIndex = 0;
-
             foreach (string searchCookieName in _requiredCookiesNames)
             {
-                var isFound = false;
-
-                foreach ((string name, string value) in cookieTuples)
-                {
-                    if (name != searchCookieName)
-                    {
-                        continue;
-                    }
-                    
-                    _cookies[cookieIndex++] = new Cookie(name, value, "/", ".mihoyo.com");
-                    isFound = true;
-
-                    break;
-                }
+                bool isFound = cookiesNames.Any(name => name == searchCookieName);
 
                 if (!isFound)
                 {
                     return false;
                 }
             }
-            
+
             return true;
         }
 
-        private static bool TryConvertRawCookies(string[] rawCookies, out (string cookieName, string cookieValue)[] processedCookies)
+        private static bool TryConvertRawCookies(string[] rawCookies, out string[] cookiesNames)
         {
-            processedCookies = new (string, string)[rawCookies.Length];
+            cookiesNames = new string[rawCookies.Length];
 
             for (var i = 0; i < rawCookies.Length; i++)
             {
@@ -87,7 +66,7 @@ namespace HoYoLab_API
                     return false;
                 }
 
-                processedCookies[i] = (separatedCookie[0], separatedCookie[1]);
+                cookiesNames[i] = separatedCookie[0];
             }
 
             return true;
