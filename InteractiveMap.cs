@@ -77,42 +77,66 @@ namespace HoYoLab_API
             }
         }
 
-        public bool TryMarkPoint(MapPoint point, out string response)
+        public bool TryMarkPoint(MapPoint point)
         {
-            response = string.Empty;
-
             if (point.IsMarked)
             {
                 return true;
             }
 
             if (new ChangePointMarkStatusRequest(_hoyolabAccount, MapLocation, point.Id, true)
-                    .TrySend(out response) == false)
+                    .TrySend(out string response) == false)
             {
                 return false;
             }
 
-            point.IsMarked = true;
-            return true;
+            try
+            {
+                var deserializedResponse = JsonSerializer.Deserialize<DefaultResponse>(response);
+
+                if (deserializedResponse is not { ResultCode: 0 })
+                {
+                    return false;
+                }
+
+                point.IsMarked = true;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        public bool TryUnmarkPoint(MapPoint point, out string response)
+        public bool TryUnmarkPoint(MapPoint point)
         {
-            response = string.Empty;
-
             if (point.IsMarked == false)
             {
                 return true;
             }
 
             if (new ChangePointMarkStatusRequest(_hoyolabAccount, MapLocation, point.Id, false)
-                    .TrySend(out response) == false)
+                    .TrySend(out string response) == false)
             {
                 return false;
             }
 
-            point.IsMarked = false;
-            return true;
+            try
+            {
+                var deserializedResponse = JsonSerializer.Deserialize<DefaultResponse>(response);
+
+                if (deserializedResponse is not {ResultCode: 0})
+                {
+                    return false;
+                }
+
+                point.IsMarked = false;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void UpdateMarkedPoints()
