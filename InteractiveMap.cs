@@ -131,7 +131,7 @@ namespace HoYoLab_API
                     return;
                 }
 
-                foreach (MapPoint point in _mapPoints)
+                foreach (MapPoint point in _mapPoints!)
                 {
                     if (deserializedMarkedPointsResponse.ReturnedData?.Points.FirstOrDefault(x =>
                             x.Location == MapLocation && x.Id == point.Id) == null)

@@ -8,10 +8,11 @@ namespace HoYoLab_API.Requests
        
         public MarkMapObjectRequest(HoyolabAccount account, InteractiveMap.Location mapLocation, int pointId) : base(account)
         {
-            RequestMessage = new HttpRequestMessage(HttpMethod.Post,
-                $"{MapObjectsUrl}");
-
-            RequestMessage.Content = JsonContent.Create(new { map_id = (int)mapLocation, point_id = pointId, app_sn = "ys_obc", lang = account.Language });
+            RequestMessage = new HttpRequestMessage(HttpMethod.Post, $"{MapObjectsUrl}")
+            {
+                Content = JsonContent.Create(new
+                    {map_id = (int) mapLocation, point_id = pointId, app_sn = "ys_obc", lang = account.Language})
+            };
         }
 
         protected override HttpRequestMessage RequestMessage { get; }
