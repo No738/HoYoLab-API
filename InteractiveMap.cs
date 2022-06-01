@@ -86,30 +86,32 @@ namespace HoYoLab_API
                 return true;
             }
 
-            if (new MarkMapObjectRequest(_hoyolabAccount, MapLocation, point.Id)
+            if (new ChangePointMarkStatusRequest(_hoyolabAccount, MapLocation, point.Id, true)
                     .TrySend(out response) == false)
             {
                 return false;
             }
 
+            point.IsMarked = true;
             return true;
         }
 
-        public bool TryUnmark(MapPoint point, out string response)
+        public bool TryUnmarkPoint(MapPoint point, out string response)
         {
             response = string.Empty;
 
-            if (point.IsMarked)
+            if (point.IsMarked == false)
             {
                 return true;
             }
 
-            if (new MarkMapObjectRequest(_hoyolabAccount, MapLocation, point.Id)
+            if (new ChangePointMarkStatusRequest(_hoyolabAccount, MapLocation, point.Id, false)
                     .TrySend(out response) == false)
             {
                 return false;
             }
 
+            point.IsMarked = false;
             return true;
         }
 
