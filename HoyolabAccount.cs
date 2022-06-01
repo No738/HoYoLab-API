@@ -34,7 +34,6 @@
             Language = language;
 
             DailyCheckIn = new CheckIn(this);
-            InteractiveMap = new InteractiveMap(this);
             _gameAccounts = new GameAccounts(this);
         }
 
@@ -47,8 +46,6 @@
         /// All Genshin Impact accounts, connected to the HoYoLab account [Has a cache time!]
         /// </summary>
         public IReadOnlyList<GameAccounts.GameAccount>? GameAccounts => _gameAccounts.Accounts;
-
-        public InteractiveMap InteractiveMap { get; }
 
         /// <summary>
         /// Daily check-in API for in-game rewards

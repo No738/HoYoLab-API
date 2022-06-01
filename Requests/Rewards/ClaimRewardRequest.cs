@@ -4,7 +4,7 @@
     {
         private static readonly string AccountInfoUrl = "https://hk4e-api-os.mihoyo.com/event/sol/sign";
 
-        public ClaimRewardRequest(HoyolabAccount account) : base(account.AuthenticationData, account.UserAgent)
+        public ClaimRewardRequest(HoyolabAccount account) : base(account)
         {
             RequestMessage = new HttpRequestMessage(HttpMethod.Post,
                 $"{AccountInfoUrl}?act_id=e202102251931481&lang={account.Language}&{AdditionalMetaParameters}");

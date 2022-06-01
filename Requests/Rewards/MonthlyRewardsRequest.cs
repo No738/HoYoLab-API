@@ -5,7 +5,7 @@
         private static readonly string AccountInfoUrl = "https://sg-hk4e-api.hoyolab.com/event/sol/home";
 
         public MonthlyRewardsRequest(HoyolabAccount account) :
-            base(account.AuthenticationData, account.UserAgent)
+            base(account)
         {
             RequestMessage = new HttpRequestMessage(HttpMethod.Get,
                 $"{AccountInfoUrl}?act_id=e202102251931481&lang={account.Language}&{AdditionalMetaParameters}");

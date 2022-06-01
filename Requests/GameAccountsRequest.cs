@@ -4,8 +4,7 @@
     {
         private static readonly string AccountInfoUrl = "https://api-os-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie";
 
-        public GameAccountsRequest(HoyolabAccount account) : base(account.AuthenticationData,
-            account.UserAgent)
+        public GameAccountsRequest(HoyolabAccount account) : base(account)
         {
             RequestMessage = new HttpRequestMessage(HttpMethod.Get,
                 $"{AccountInfoUrl}?lang={account.Language}&{AdditionalMetaParameters}");

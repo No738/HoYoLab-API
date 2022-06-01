@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 using HoYoLab_API.Requests;
 using HoYoLab_API.Responses;
 
@@ -8,157 +7,134 @@ namespace HoYoLab_API
     public class InteractiveMap
     {
         private readonly HoyolabAccount _hoyolabAccount;
+        private List<MapPoint>? _mapPoints;
 
-        private DateTime _lastUpdateTime = DateTime.MinValue;
-        private IReadOnlyList<MapObject>? _mapObjects = null;
-        private IReadOnlyList<MapObjectLabel>? _objectLabels = null;
-
-        internal InteractiveMap(HoyolabAccount hoyolabAccount)
+        public InteractiveMap(HoyolabAccount hoyolabAccount, Location mapLocation)
         {
             _hoyolabAccount = hoyolabAccount;
+            MapLocation = mapLocation;
         }
 
-        public int MapCacheTime => 30;
+        public enum Location
+        {
+            Teyvat = 2,
+            Enkanomiya = 7,
+            Chasm = 9
+        }
 
-        public IReadOnlyList<MapObject>? TeyvatPoints
+        public Location MapLocation { get; }
+
+        public IReadOnlyList<MapPoint>? Points
         {
             get
             {
-                if (_mapObjects == null || _lastUpdateTime.AddMinutes(MapCacheTime) < DateTime.Now)
+                if (new InteractiveMapObjectsRequest(_hoyolabAccount, MapLocation)
+                        .TrySend(out string response) == false)
                 {
-                    RequestObjectsList();
+                    return null;
                 }
 
-                return _mapObjects;
-            }
-        }
-
-        public IReadOnlyList<MapObjectLabel>? TeyvatPointLabels
-        {
-            get
-            {
-                if (_objectLabels == null || _lastUpdateTime.AddMinutes(MapCacheTime) < DateTime.Now)
+                try
                 {
-                    RequestObjectsList();
+                    var deserializedMapObjectsResponse =
+                        JsonSerializer.Deserialize<InteractiveMapObjectsResponse>(response);
+
+                    if (deserializedMapObjectsResponse == null)
+                    {
+                        return null;
+                    }
+
+                    _mapPoints = new List<MapPoint>(deserializedMapObjectsResponse.ReturnedData.Objects.Count);
+
+                    foreach (InteractiveMapObjectsResponse.MapObject mapObject
+                             in deserializedMapObjectsResponse.ReturnedData?.Objects!)
+                    {
+                        foreach (InteractiveMapObjectsResponse.ObjectLabel label
+                                 in deserializedMapObjectsResponse.ReturnedData.ObjectLabels)
+                        {
+                            if (label.Id != mapObject.LabelId)
+                            {
+                                continue;
+                            }
+
+                            var mapPoint = new MapPoint(mapObject.Id, mapObject.PositionX, 
+                                mapObject.PositionY, label.Name, label.IconLink);
+
+                            _mapPoints.Add(mapPoint);
+                        }
+                    }
+
+                    UpdateMarkedPoints();
+
+                    return _mapPoints;
                 }
-
-                return _objectLabels;
+                catch
+                {
+                    // ignored
+                }
+                
+                return null;
             }
         }
 
-        public string MarkedObjectsResponse = string.Empty;
-
-        public bool TryMark(int objectId, out string response)
+        private void UpdateMarkedPoints()
         {
-            MapObject? foundObject = TeyvatPoints?.FirstOrDefault(x => x.Id == objectId);
-
-            if (foundObject == null)
-            {
-                response = string.Empty;
-                return false;
-            }
-
-            if (new MarkInteractiveMapObjectRequest(_hoyolabAccount, objectId).TrySend(out response) == false)
-            {
-                return false;
-            }
-            
-            return true;
-        }
-
-        public bool TryRemoveMark(int objectId)
-        {
-            return false;
-        }
-
-        private void RequestObjectsList()
-        {
-            if (new InteractiveMapObjectsRequest(_hoyolabAccount).TrySend(out string response) == false)
+            if (new MarkedMapObjectsRequest(_hoyolabAccount, MapLocation)
+                    .TrySend(out string response) == false)
             {
                 return;
             }
 
             try
             {
-                var deserializedMapObjects = JsonSerializer.Deserialize<InteractiveMapObjectsResponse>(response);
+                var deserializedMarkedPointsResponse =
+                    JsonSerializer.Deserialize<MarkedMapPointsResponse>(response);
 
-                if (deserializedMapObjects?.ReturnedData != null)
+                if (deserializedMarkedPointsResponse == null)
                 {
-                    _mapObjects = deserializedMapObjects.ReturnedData.Objects;
-                    _objectLabels = deserializedMapObjects.ReturnedData.ObjectLabels;
+                    return;
                 }
-            }
-            catch
-            {
-                return;
-            }
 
-            if (new MarkedMapObjectsRequest(_hoyolabAccount).TrySend(out string markedObjectsResponse) == false)
-            {
-                return;
-            }
-
-            try
-            {
-                var deserializedMapObjects = JsonSerializer.Deserialize<DefaultResponse>(markedObjectsResponse);
-
-                if (deserializedMapObjects?.ReturnedData != null)
+                foreach (MapPoint point in _mapPoints)
                 {
-                    MarkedObjectsResponse = markedObjectsResponse;
+                    if (deserializedMarkedPointsResponse.ReturnedData?.Points.FirstOrDefault(x =>
+                            x.Location == MapLocation && x.Id == point.Id) == null)
+                    {
+                        point.IsMarked = false;
+                        continue;
+                    }
+
+                    point.IsMarked = true;
                 }
             }
             catch
             {
                 // ignored
             }
-
-            _lastUpdateTime = DateTime.Now;
         }
 
-        public class MapObject
+        public class MapPoint
         {
-            [JsonPropertyName("id")]
-            public int Id { get; init; }
+            internal MapPoint(int id, float positionX, float positionY, string name, string iconLink)
+            {
+                Id = id;
+                PositionX = positionX;
+                PositionY = positionY;
+                Name = name;
+                IconLink = iconLink;
+            }
 
-            [JsonPropertyName("label_id")]
-            public int LabelId { get; init; }
-
-            [JsonPropertyName("x_pos")]
-            public float PositionX { get; init; }
-
-            [JsonPropertyName("y_pos")]
-            public float PositionY { get; init; }
-
-            public bool IsMarked { get; private set; }
+            public int Id { get; }
+            public float PositionX { get; }
+            public float PositionY { get; }
+            public string Name { get; }
+            public string IconLink { get; }
+            public bool IsMarked { get; internal set; }
 
             public override string ToString()
             {
-                return $"{Id} ({PositionX};{PositionY})";
+                return $"{Id} - {Name} ({PositionX};{PositionY})";
             }
-        }
-
-        public class MapObjectLabel
-        {
-            [JsonPropertyName("id")]
-            public int Id { get; init; }
-
-            [JsonPropertyName("name")]
-            public string Name { get; init; }
-
-            [JsonPropertyName("icon")]
-            public string IconLink { get; init; }
-        }
-
-        public class MarkedPointList
-        {
-            [JsonPropertyName("list")]
-            public IReadOnlyList<MarkedPoint> Points { get; init; }
-        }
-
-        public class MarkedPoint
-        {
-            [JsonPropertyName("point_id")]
-            public int Id { get; init; }
         }
     }
 }
